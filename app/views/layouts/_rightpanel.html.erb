@@ -1,0 +1,236 @@
+<div class="offcanvas">
+  <!-- BEGIN OFFCANVAS SEARCH -->
+  <div id="offcanvas-search" class="offcanvas-pane width-8">
+    <div class="offcanvas-head">
+      <header class="text-primary">Search</header>
+      <div class="offcanvas-tools">
+        <a class="btn btn-icon-toggle btn-default-light pull-right" data-dismiss="offcanvas">
+          <i class="md md-close"></i>
+        </a>
+      </div>
+    </div>
+    <div class="offcanvas-body no-padding">
+      <ul class="list ">
+        <% list_user_chat.each do |k,v| %>
+          <li class="tile divider-full-bleed">
+            <div class="tile-content">
+              <div class="tile-text"><strong><%= k %></strong></div>
+            </div>
+          </li>
+          <% v.each do |item| %>
+            <% if item.id != current_user.id %>
+              <li class="tile">
+                <a data-name="<%= item.name %>" data-id="<%= item.id %>" data-image="<%= item.image %>" class="tile-content ink-reaction chatbox" href="#offcanvas-chat" data-toggle="offcanvas" data-backdrop="false">
+                  <div class="tile-icon">
+                    <img src="<%= item.image %>" alt="" />
+                  </div>
+                  <div class="tile-text">
+                    <%= item.name %>
+                    <small><%= item.numberphone %></small>
+                  </div>
+                </a>
+              </li>
+            <% end %>
+          <% end %>
+        <% end %>
+      </ul>
+    </div><!--end .offcanvas-body -->
+  </div><!--end .offcanvas-pane -->
+  <!-- END OFFCANVAS SEARCH -->
+
+  <!-- BEGIN OFFCANVAS CHAT -->
+  <div id="offcanvas-chat" class="offcanvas-pane style-default-light width-12">
+    <div class="offcanvas-head style-default-bright">
+      <header class="text-primary">Chat with <span id="chatName"></span></header>
+      <div class="offcanvas-tools">
+        <a class="btn btn-icon-toggle btn-default-light pull-right" data-dismiss="offcanvas">
+          <i class="md md-close"></i>
+        </a>
+        <a class="btn btn-icon-toggle btn-default-light pull-right" href="#offcanvas-search" data-toggle="offcanvas" data-backdrop="false">
+          <i class="md md-arrow-back"></i>
+        </a>
+      </div>
+      <form class="form">
+        <div class="form-group floating-label">
+          <textarea id="mess" class="form-control autosize" rows="1"></textarea>
+          <label for="sidebarChatMessage">Leave a message</label>
+          <a href="javascript:void(0);" id="sendMess"><i class="md md-send"></i></a>
+        </div>
+      </form>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="list-chats" id="messBox" style="overflow-x:auto;">
+      </ul>
+    </div><!--end .offcanvas-body -->
+  </div><!--end .offcanvas-pane -->
+  <!-- END OFFCANVAS CHAT -->
+
+</div><!--end .offcanvas-->
+
+<script>
+  var name = "", userId = 0, image = "",currentNumMess;
+  var currentName = "<%= current_user.name %>", currentId = "<%= current_user.id %>", currentImage = "<%= current_user.image %>";
+  var messageBoxElm = $('#messBox');
+
+  function writeUserData(userIdReceive, userIdSend, imageSend, nameSend, message) {
+    var messDataRef = database.ref('users/' + userIdSend + '-' + userIdReceive);
+    messDataRef.once('value', function(snapshot) {
+      console.log(snapshot.val())
+      if(snapshot.val() == null){
+        messDataRef = database.ref('users/' + userIdReceive + '-' + userIdSend)
+        messDataRef.once('value', function(snapshot) {
+          messDataRef.child('messData').push({
+            idSend: userIdSend,
+            nameSend: nameSend,
+            imageSend: imageSend,
+            mess: message,
+            timeSend: Date.now()
+          });
+        });
+      }
+      else{
+        messDataRef.child('messData').push({
+          idSend: userIdSend,
+          nameSend: nameSend,
+          imageSend: imageSend,
+          mess: message,
+          timeSend: Date.now()
+        });
+      }
+    });
+    var data = {};
+    data.type = 'MESS';
+    data.currentUserID = userIdSend;
+    data.currentUserName = nameSend;
+    data.currentUserImage = imageSend;
+    data.ownerActivity = userIdReceive;
+    socketEvent.sendNotification(data);
+  }
+
+  function updateNewMess(data){
+      var currentDate = new Date(Date.now());
+      var dCurrent = currentDate.getDate(), mCurrent = currentDate.getMonth() + 1, yCurrent = currentDate.getFullYear();
+      var formatCurrentDate = dCurrent + '/' + mCurrent + '/' + yCurrent;
+
+      var dataMess = data.messData;
+      var newNumMess = countProperties(data.messData);
+      if(newNumMess > currentNumMess){
+        var newestMess = dataMess[Object.keys(dataMess)[Object.keys(dataMess).length - 1]];
+        var created_at = new Date(newestMess.timeSend);
+        var d = created_at.getDate(), m = created_at.getMonth() + 1, y = created_at.getFullYear();
+        var formatDate = (formatCurrentDate === (d + '/' + m  + '/' + y)) ? formatAMPM(created_at) : d + '/' + m  + '/' + y + ' ' + formatAMPM(created_at);
+        if(newestMess.idSend == currentId){
+          var chatContent = [
+            '<li>',
+              '<div class="chat">',
+                '<div class="chat-avatar"><img class="img-circle" src="'+newestMess.imageSend+'" alt="" /></div>',
+                '<div class="chat-body">',
+                  ''+newestMess.mess+'',
+                  '<small>'+formatDate+'</small>',
+                '</div>',
+              '</div>',
+            '</li>',
+          ].join('\n');
+        }
+        else{
+          var chatContent = [
+            '<li class="chat-left">',
+              '<div class="chat">',
+                '<div class="chat-avatar"><img class="img-circle" src="'+newestMess.imageSend+'" alt="" /></div>',
+                '<div class="chat-body">',
+                  ''+newestMess.mess+'',
+                  '<small>'+formatDate+'</small>',
+                '</div>',
+              '</div>',
+            '</li>',
+          ].join('\n');
+        }
+        messageBoxElm.prepend(chatContent);
+        currentNumMess = newNumMess;
+      }
+  }
+
+  function updateMessBox(data){
+    var currentDate = new Date(Date.now());
+    var dCurrent = currentDate.getDate(), mCurrent = currentDate.getMonth() + 1, yCurrent = currentDate.getFullYear();
+    var formatCurrentDate = dCurrent + '/' + mCurrent + '/' + yCurrent;
+    $.each(data.messData, function(key,val){
+      var created_at = new Date(val.timeSend);
+      var d = created_at.getDate(), m = created_at.getMonth() + 1, y = created_at.getFullYear();
+      var formatDate = (formatCurrentDate === (d + '/' + m  + '/' + y)) ? formatAMPM(created_at) : d + '/' + m  + '/' + y + ' ' + formatAMPM(created_at);
+      if(val.idSend == currentId){
+        var chatContent = [
+          '<li>',
+            '<div class="chat">',
+              '<div class="chat-avatar"><img class="img-circle" src="'+val.imageSend+'" alt="" /></div>',
+              '<div class="chat-body">',
+                ''+val.mess+'',
+                '<small>'+formatDate+'</small>',
+              '</div>',
+            '</div>',
+          '</li>',
+        ].join('\n');
+      }
+      else{
+        var chatContent = [
+          '<li class="chat-left">',
+            '<div class="chat">',
+              '<div class="chat-avatar"><img class="img-circle" src="'+val.imageSend+'" alt="" /></div>',
+              '<div class="chat-body">',
+                ''+val.mess+'',
+                '<small>'+formatDate+'</small>',
+              '</div>',
+            '</div>',
+          '</li>',
+        ].join('\n');
+      }
+      messageBoxElm.append(chatContent);
+    });
+    currentNumMess = countProperties(data.messData);
+  }
+
+  $(document).ready(function(){
+    $('.chatbox').on('click', function(){
+      messageBoxElm.empty();
+      name = $(this)[0].dataset.name;
+      userId = $(this)[0].dataset.id;
+      image = $(this)[0].dataset.image;
+      $('#chatName').text(name);
+
+      var messDataRef = database.ref('users/' + currentId + '-' + userId);
+      messDataRef.once('value', function(snapshot) {
+        if(snapshot.val() == null){
+          messDataRef = database.ref('users/' + userId + '-' + currentId);
+          messDataRef.once('value', function(snapshot) {
+            if(snapshot.val() != null){
+              updateMessBox(snapshot.val());
+            }
+          });
+        }
+        else{
+          updateMessBox(snapshot.val());
+        }
+      });
+
+      messDataRef.on('value', function(snapshot) {
+        if(snapshot.val() == null){
+          messDataRef = database.ref('users/' + userId + '-' + currentId);
+          messDataRef.on('value', function(snapshot) {
+            if(snapshot.val() != null){
+              updateNewMess(snapshot.val());
+            }
+          });
+        }
+        else{
+          updateNewMess(snapshot.val());
+        }
+      });
+    });
+
+    $('#sendMess').on('click',function(){
+      var mess = $('#mess').val();
+      writeUserData(userId,currentId,currentImage,currentName,mess);
+      $('#mess').val("");
+    });
+  });
+</script>

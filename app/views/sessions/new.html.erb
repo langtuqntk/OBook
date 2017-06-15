@@ -1,0 +1,48 @@
+<% provide(:title, "Log in") %>
+<div class="col s12 z-depth-4 card-panel">
+  <%= form_for(:session, url: login_path,  :html => {:class => 'login-form'}) do |f| %>
+    <div class="row">
+      <div class="input-field col s12 center">
+
+        <img src="/images/login-logo.png" class="circle responsive-img valign profile-image-login" />
+        <p class="center login-form-text">Material Design Admin Template</p>
+      </div>
+    </div>
+    <div class="row margin">
+      <div class="input-field col s12">
+        <i class="mdi-social-person-outline prefix"></i>
+        <%= f.email_field :email, id: 'email' %>
+        <%= f.label :email, :for => "email", :class => "center-align" %>
+      </div>
+    </div>
+    <div class="row margin">
+      <div class="input-field col s12">
+        <i class="mdi-action-lock-outline prefix"></i>
+        <%= f.password_field :password, id: 'password' %>
+        <%= f.label :password, :for => "password" %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s12 m12 l12  login-text">
+        <%= f.check_box :remember_me, id: 'remember-me' %>
+        <%= f.label :remember_me,'Remember Me', for: 'remember-me' %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s12">
+        <% flash.each do |key, value| %>
+          <div class="alert alert-<%= key %>"><%= value %></div>
+        <% end %>
+        <button type="submit" class="btn waves-effect waves-light col s12">Login</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s6 m6 l6">
+        <p class="margin medium-small"><%= link_to "Register Now!", signup_path %></p>
+      </div>
+      <div class="input-field col s6 m6 l6">
+          <p class="margin right-align medium-small"><%= link_to "Forgot password ?", password_forgot_path %></p>
+      </div>
+    </div>
+  <% end %>
+</div>

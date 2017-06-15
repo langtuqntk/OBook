@@ -1,0 +1,172 @@
+<!--StaticPage-->
+<section class="has-actions style-default-bright">
+
+					<!-- BEGIN INBOX -->
+					<div class="section-body">
+						<div class="row">
+
+							<!-- BEGIN INBOX NAV -->
+							<div class="col-sm-4 col-md-3 col-lg-2">
+								<form class="navbar-search margin-bottom-xxl" role="search">
+									<div class="form-group">
+										<input type="text" class="form-control" name="contactSearch" placeholder="Enter your keyword">
+									</div>
+									<button type="submit" class="btn btn-icon-toggle ink-reaction"><i class="fa fa-search"></i></button>
+								</form>
+								<ul class="nav nav-pills nav-stacked nav-icon">
+									<li><small>REQUESTBOXES</small></li>
+									<li class="active">
+                    <%= link_to request_list_path do %>
+                      <span class="glyphicon glyphicon-inbox"></span>Requests <small>(<%= @requests.count %>)</small>
+                    <% end %>
+                  </li>
+									<li><small>Tags</small></li>
+									<li><a id="pending" href="javascript:void(0);"><i class="fa fa-dot-circle-o text-warning"></i>Pending</a></li>
+									<li><a id="reject" href="javascript:void(0);"><i class="fa fa-dot-circle-o text-danger"></i>Reject</a></li>
+									<li><a id="accepted" href="javascript:void(0);"><i class="fa fa-dot-circle-o text-success"></i>Accepted</a></li>
+								</ul>
+							</div><!--end . -->
+							<!-- END INBOX NAV -->
+
+							<div class="col-sm-8 col-md-9 col-lg-10">
+								<div class="text-divider visible-xs"><span>Request list</span></div>
+								<div class="row">
+
+									<!-- BEGIN INBOX EMAIL LIST -->
+									<div class="col-md-5 col-lg-4 height-6 scroll-sm">
+										<div class="list-group list-email list-gray">
+											<% @requests.each do |item| %>
+												<% if @requests.index(item) == 0 %>
+													<input type="hidden" id="requestid" value="<%= item.id %>" />
+												<% end %>
+												<a data-id="<%= item.id %>" href="javascript:void(0);" class="list-group-item mark<%= item.status %> request-item">
+													<div class="stick-top-left small-padding">
+														<% case item.status %>
+														<% when 0 %>
+															<i class="fa fa-dot-circle-o text-warning"></i>
+														<% when 1 %>
+															<i class="fa fa-dot-circle-o text-danger"></i>
+														<% else %>
+															<i class="fa fa-dot-circle-o text-success"></i>
+														<% end %>
+													</div>
+													<h5><%= item.title %></h5>
+													<div class="stick-top-right small-padding text-default-light text-sm">
+														<% if item.created_at.to_date == Date.today.to_date %>
+															<%= item.created_at.strftime('%I:%M %p') %>
+														<% else %>
+															<%= item.created_at.strftime('%d/%m/%Y %I:%M %p') %>
+														<% end %>
+													</div>
+													<div class="stick-bottom-right small-padding">
+														<span data-id="<%= item.id %>" class="glyphicon glyphicon-trash removeBtn"></span>
+													</div>
+												</a>
+											<% end %>
+											<%= will_paginate %>
+										</div><!--end .list-group -->
+									</div><!--end .col -->
+									<!-- END INBOX EMAIL LIST -->
+
+									<!-- BEGIN EMAIL CONTENT -->
+									<div class="col-md-7 col-lg-8">
+										<div id="requestcontent"></div>
+									</div><!--end .col -->
+									<!-- END EMAIL CONTENT -->
+
+								</div><!--end .row -->
+							</div><!--end .col -->
+						</div><!--end .row -->
+					</div><!--end .section-body -->
+					<!-- END INBOX -->
+
+					<!-- BEGIN SECTION ACTION -->
+						<div style="position: fixed;top: 575px;" class="section-floating-action-row">
+              <%= link_to new_request_path, class: "btn ink-reaction btn-floating-action btn-lg btn-accent", data: { toggle: 'tooltip', placement: 'top', original_title: 'New Request' } do %>
+                <i class="md md-add"></i>
+              <% end %>
+						</div>
+					<!-- END SECTION ACTION -->
+
+				</section>
+
+<script>
+	var requestID = $('#requestid').val();
+	function load_request_content(id){
+		if (id === undefined){
+			$('#requestcontent').append("Trống!");
+		}
+		else{
+			$.ajax({
+				url:'/load_content_request/' + id,
+				method: "GET",
+				success: function(res) {
+					var created_at = new Date(res.created_at);
+					var d = created_at.getDate(), m = created_at.getMonth() + 1, y = created_at.getFullYear();
+					var formatDate = d + '/' + m  + '/' + y + ' ' + formatAMPM(created_at);
+					$('#requestcontent').empty();
+					var content = [
+						'<div class="row">',
+							'<div class="col-md-10">',
+								'<h4 class="no-margin">'+res.title+'</h4>',
+								'<div class="btn-group stick-top-right">',
+									'<span class="pull-right text-default-light">'+formatDate+'</span>',
+								'</div>',
+							'</div>',
+						'</div>',
+						'<hr/>',
+						'<article class="style-default-bright">',
+							'<div class="card card-tiles style-default-light">'+res.contenthtml+'</div>',
+						'</article>',
+					].join('\n');
+					$('#requestcontent').append(content);
+				},
+				error: function(res) {
+					console.log(res);
+				}
+			});
+		}
+	}
+
+	$(document).ready(function(){
+		$('.request-item')[0].className +=" active";
+
+		load_request_content(requestID);
+
+		$('#pending').on('click', function(){
+			$('.mark0').toggle();
+		});
+
+		$('#reject').on('click', function(){
+			$('.mark1').toggle();
+		});
+
+		$('#accepted').on('click', function(){
+			$('.mark2').toggle();
+		});
+
+		$('.request-item').on('click',function(){
+			requestID = $(this)[0].dataset.id;
+			load_request_content(requestID);
+			$('.request-item').removeClass('active');
+			$(this).addClass('active');
+		});
+
+		$('.removeBtn').on('click', function(){
+			var requestID = $(this)[0].dataset.id;
+			$.ajax({
+				url:"/remove_request",
+				data:{id: requestID},
+				method:"DELETE",
+				success: function(res){
+					console.log(res);
+					location.href = "/request_list";
+				},
+				error: function(res){
+					console.log(res);
+				}
+			});
+		});
+	});
+
+</script>

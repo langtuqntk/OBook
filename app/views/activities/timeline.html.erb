@@ -1,0 +1,145 @@
+<!--StaticPage-->
+		<section>
+					<div class="section-body">
+						<div class="container">
+							<h2 class="text-light text-center">Timeline</h2>
+							<!-- BEGIN RESPONSIVE TIMELINE -->
+							<ul class="timeline collapse-md">
+								<% @activities.each do |item| %>
+
+									<% if @activities.index(item) % 2 == 0 %>
+										<li>
+									<% else %>
+										<li class="timeline-inverted">
+									<% end %>
+											<div class="timeline-circ circ-lg style-primary-gradient">
+												<% case item.activity_id %>
+												<% when 1 %>
+													<span class="fa fa-book"></span>
+												<% when 2 %>
+													<span class="fa fa-heart"></span>
+												<% when 3 %>
+													<span class="fa fa-eye"></span>
+												<% when 4 %>
+													<span class="glyphicon glyphicon-comment"></span>
+												<% when 5 %>
+													<span class="fa fa-user-plus"></span>
+												<% else %>
+													<span class="md md-event"></span>
+												<% end %>
+											</div>
+											<div class="timeline-entry">
+												<% if item.activity_id == 6 %>
+													<div class="card style-primary">
+												<% else %>
+													<div class="card style-default-light">
+												<% end %>
+													<div class="card-body small-padding">
+														<% if item.activity_id == 6 %>
+															<img class="img-circle img-responsive pull-left width-1" src="<%= item.user_image_status %>" alt="" />
+														<% else %>
+															<img class="img-circle img-responsive pull-left width-1" src="<%= item.image %>" alt="" />
+														<% end %>
+														<span class="text-medium">
+															<% case item.activity_id %>
+															<% when 1 %>
+																<%= link_to item.name , profile_path(item.id), class:"text-primary" %> read <%= link_to item.title ,detail_book_path(item.book_affected), class:"text-primary" %> book
+															<% when 2 %>
+																<%= link_to item.name , profile_path(item.id), class:"text-primary" %> added <%= link_to item.title ,detail_book_path(item.book_affected), class:"text-primary" %> book to favorites
+															<% when 3 %>
+																<%= link_to item.name , profile_path(item.id), class:"text-primary" %> reviewed <%= link_to item.title ,detail_book_path(item.book_affected), class:"text-primary" %> book
+															<% when 4 %>
+																<%= link_to item.name , profile_path(item.id), class:"text-primary" %> commented on <%= link_to item.user_name_affected , profile_path(item.user_id_affected), class:"text-primary" %>'s review in <%= link_to item.title ,detail_book_path(item.book_affected), class:"text-primary" %> book
+															<% when 5 %>
+																<%= link_to item.name , profile_path(item.id), class:"text-primary" %> followed <%= link_to item.user_name_affected , profile_path(item.user_id_affected), class:"text-primary" %>
+															<% else %>
+																<%= link_to item.user_name_status , profile_path(item.user_id_status), class:"text-primary-dark" %> posted a new status at <span class="text-primary-dark"><%= item.location %></span>
+															<% end %>
+														</span><br/>
+														<span class="opacity-50">
+															<%= item.created_at.strftime('%d/%m/%Y at %I:%M %p') %> |
+															<a data-activeid="<%= item.id %>" data-userid="<%= item.user_id %>" class="likeBtn" href="javascript:void(0);">
+																<span>
+																	<% if item.amountlike == nil %>
+																		0
+																	<% else %>
+																		<%= item.amountlike %>
+																	<% end %>
+															  </span>
+																<i class="fa fa-thumbs-up"></i>
+															</a>
+														</span>
+													</div><!--end .card-body -->
+													<% if item.activity_id == 6 %>
+														<div class="card-body">
+															<p><em><%= item.content %></em></p>
+															<img class="img-responsive" src="<%= item.status_image %>" alt="" />
+														</div><!--end .card-body -->
+													<% end %>
+												</div><!--end .card -->
+											</div><!--end .timeline-entry -->
+										</li>
+								<% end %>
+						</ul>
+						<!-- END RESPONSIVE TIMELINE -->
+
+					</div><!--end .container -->
+				</div><!--end .section-body -->
+			</section>
+
+			<input id="currentUserLike" type="hidden" value="<%= @likeArrOfCurrentUser.join('-')%>" />
+<script>
+	$(document).ready(function(){
+		var currentUserLike = $('#currentUserLike').val().split('-');
+		if(currentUserLike[0] != ""){
+			for(var i = 0; i < currentUserLike.length; i++){
+				$('.likeBtn')[currentUserLike[i]].className += " isLike";
+			}
+		}
+
+		$('.likeBtn').on('click',function(){
+			var currentElm = $(this);
+			var currentLike = parseInt(currentElm.find('span').text());
+			var data = {
+				id : $(this)[0].dataset.activeid
+			};
+			var isLike = $(this).hasClass('isLike');
+			if(!isLike){
+				$.ajax({
+					url:"/like_activity",
+					data: data,
+					method:"POST",
+					success: function(res){
+						console.log(res);
+						currentElm.addClass('isLike');
+						currentElm.find('span').text(currentLike + 1);
+						data.type = 'LIKE';
+						data.currentUserID = "<%= current_user.id %>";
+						data.currentUserName = "<%= current_user.name %>";
+						data.currentUserImage = "<%=  current_user.image %>";
+						data.ownerActivity = currentElm[0].dataset.userid;
+						socketEvent.sendNotification(data);
+					},
+					error: function(res){
+						console.log(res);
+					}
+				});
+			}
+			else{
+				$.ajax({
+					url:"/unlike_activity",
+					data: data,
+					method:"DELETE",
+					success: function(res){
+						console.log(res);
+						currentElm.removeClass('isLike');
+						currentElm.find('span').text(currentLike - 1);
+					},
+					error: function(res){
+						console.log(res);
+					}
+				});
+			}
+		});
+	});
+</script>

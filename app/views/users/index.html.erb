@@ -1,0 +1,138 @@
+<!--StaticPage-->
+<% provide(:title, 'All users') %>
+<h1>All users</h1>
+<div class="row">
+  <div class="col-md-12">
+    <%= link_to 'New User',new_user_path, class:'btn btn-lg ink-reaction btn-raised btn-primary' %>
+  </div><!--end .col -->
+  <div class="col-lg-12">
+    <div class="table-responsive">
+      <table id="datatable1" class="table table-hover ">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th class="sort-alpha">Name</th>
+            <th>Email</th>
+            <th>Created At</th>
+            <th>Role</th>
+            <th>Activated</th>
+            <th>Activated At</th>
+            <td>Avatar</td>
+            <td>Action</td>
+          </tr>
+        </thead>
+        <tbody>
+          <% @users.each do |item| %>
+            <tr class="gradeX">
+              <td><%= item.id %></td>
+              <td><%= item.name %></td>
+              <td><%= item.email %></td>
+              <td><%= item.created_at %></td>
+              <td>
+                <% if item.admin? %>
+                  Admin
+                <% else %>
+                  User
+                <% end %>
+              </td>
+              <td>
+                <% if item.activated? %>
+                  Đã kích hoạt
+                <% else %>
+                  Chưa kích hoạt
+                <% end %>
+              </td>
+              <td><%= item.activated_at %></td>
+              <td><%= gravatar_for item, size: 50 %></td>
+              <td>
+                <% if current_user?(item) %>
+                  <a href="#" class="btn btn-icon-toggle" data-userid="<%= item.id %>"  data-toggle="modal" data-target="#viewModal"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                <% else %>
+                  <a href="#" class="btn btn-icon-toggle" data-userid="<%= item.id %>"  data-toggle="modal" data-target="#viewModal"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                  <%= link_to edit_user_path(item), class:"btn btn-icon-toggle" do %>
+                      <i class="fa fa-pencil" aria-hidden="true"></i>
+                  <% end %>
+                  <%= link_to item, method: :delete, class:"btn btn-icon-toggle delete_user",
+                                                   data: { confirm: "You sure?" },
+                                                   remote: true do %>
+                      <i class="fa fa-trash" aria-hidden="true"></i>
+                  <% end %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div><!--end .table-responsive -->
+  </div><!--end .col -->
+</div><!--end .row -->
+<!-- END DATATABLE 1 -->
+
+
+<!-- View Modal -->
+<div id="viewModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Detail User</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+							<div class="col-md-12">
+								<div class="card style-primary">
+									<div class="card-body" id="detailuser">
+
+									</div><!--end .card-body -->
+								</div><!--end .card -->
+							</div><!--end .col -->
+						</div><!--end .row -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  $(document).ready(function(){
+    $("a[data-userid]").click(function() {
+        var userID = $(this).attr("data-userid");
+        $.ajax({
+          url: "/users/" + userID,
+          method: "GET",
+          success: function(res){
+            console.log(res);
+            var content =
+            ['<table class="table table-hover no-margin">',
+              '<tr>',
+                '<th>FullName:</th>',
+                '<td>'+res.name+'</td>',
+              '<tr>',
+              '<tr>',
+                '<th>Email:</th>',
+                '<td>'+res.email+'</td>',
+              '</tr>',
+              '<tr>',
+                '<th>Telephone:</th>',
+                '<td>'+res.numberphone+'</td>',
+              '</tr>',
+            '</table>'].join('\n');
+            $('#detailuser').empty();
+            $('#detailuser').append(content);
+          },
+          error: function(res){
+            console.log(res);
+          }
+        });
+    });
+
+    $('.delete_user').bind('ajax:success', function() {
+       $(this).closest('tr').fadeOut();
+    });
+  });
+</script>

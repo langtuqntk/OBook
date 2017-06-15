@@ -1,0 +1,206 @@
+<!--StaticPage-->
+<section class="has-actions style-default-bright">
+					<!-- BEGIN INBOX -->
+					<div class="section-body">
+						<div class="row">
+
+							<!-- BEGIN INBOX NAV -->
+							<div class="col-sm-4 col-md-3 col-lg-2">
+								<form class="navbar-search margin-bottom-xxl" role="search">
+									<div class="form-group">
+										<input type="text" class="form-control" name="contactSearch" placeholder="Enter your keyword">
+									</div>
+									<button type="submit" class="btn btn-icon-toggle ink-reaction"><i class="fa fa-search"></i></button>
+								</form>
+								<ul class="nav nav-pills nav-stacked nav-icon">
+									<li><small>Tags</small></li>
+									<li><a id="reading" href="javascript:void(0);"><i class="fa fa-dot-circle-o text-danger"></i>Reading</a></li>
+									<li><a id="read" href="javascript:void(0);"><i class="fa fa-dot-circle-o text-success"></i>Read</a></li>
+								</ul>
+							</div><!--end . -->
+							<!-- END INBOX NAV -->
+
+							<div class="col-sm-8 col-md-9 col-lg-10">
+								<div class="text-divider visible-xs"><span>Book list</span></div>
+								<div class="row">
+
+									<!-- BEGIN INBOX EMAIL LIST -->
+									<div class="col-md-5 col-lg-4 height-6 scroll-sm ">
+										<div style="height:800px;overflow-x:auto" class="list-group list-email list-gray ">
+											<% @books.each do |item| %>
+												<% if @books.index(item) == 0 %>
+													<input type="hidden" id="bookid" value="<%= item.id %>" />
+													<input type="hidden" id="markid" value="<%= item.mark_id %>" />
+												<% end %>
+											<a href="javascript:void(0);" data-bookid="<%= item.id %>" data-markid="<%= item.mark_id %>" class="list-group-item mark<%= item.readstatus %> book-item">
+												<input type="hidden" class="listBookID" value="<%= item.id %>-<%= item.mark_id %>" />
+												<% if item.readstatus == 1 %>
+													<div class="stick-top-left small-padding"><i class="fa fa-dot-circle-o text-danger"></i></div>
+												<% else %>
+													<div class="stick-top-left small-padding"><i class="fa fa-dot-circle-o text-success"></i></div>
+												<% end %>
+												<h5><%= item.author %></h5>
+												<h4><%= item.title %></h4>
+												<p class="hidden-xs hidden-sm"><%= item.description %></p>
+												<div class="stick-top-right small-padding text-default-light text-sm">
+													<% if item.marked_at.to_date == Date.today.to_date %>
+														<%= item.marked_at.strftime('%I:%M %p') %>
+													<% else %>
+														<%= item.marked_at.strftime('%d/%m/%Y %I:%M %p') %>
+													<% end %>
+												</div>
+											  </br>
+												<div class="stick-bottom-right small-padding rating">
+													<span class="fa fa-star"></span>
+													<span class="fa fa-star"></span>
+													<span class="fa fa-star"></span>
+													<span class="fa fa-star-o"></span>
+													<span class="fa fa-star-o"></span>
+												</div>
+											</a>
+											<% end %>
+										</div><!--end .list-group -->
+									</div><!--end .col -->
+									<!-- END INBOX EMAIL LIST -->
+
+									<!-- BEGIN EMAIL CONTENT -->
+									<div class="col-md-7 col-lg-8">
+										<div id="bookcontent"></div>
+									</div><!--end .col -->
+									<!-- END EMAIL CONTENT -->
+
+								</div><!--end .row -->
+							</div><!--end .col -->
+						</div><!--end .row -->
+					</div><!--end .section-body -->
+					<!-- END INBOX -->
+				</section>
+
+<script>
+	var currentIndexBook = 0,
+			bookID = $('#bookid').val(),
+			markID = $('#markid').val(),
+			listBook = $('.listBookID');
+
+	listBook = $.map(listBook, function(item, index){
+		return item.value;
+	});
+
+	function load_book_content(id,markID){
+		if (id === undefined){
+			$('#bookcontent').append("Trống!");
+		}
+		else{
+			$.ajax({
+				url:'/load_content_book/' + id,
+				method: "GET",
+				success: function(res) {
+					var created_at = new Date(res.created_at);
+					var d = created_at.getDate(), m = created_at.getMonth() + 1, y = created_at.getFullYear();
+					var formatDate = d + '/' + m  + '/' + y + ' ' + formatAMPM(created_at);
+					$('#bookcontent').empty();
+					var content = [
+						'<div class="row">',
+							'<div class="col-md-2"><img class="img-responsive" src="'+res.image+'" alt="" /></div>',
+							'<div class="col-md-10">',
+								'<h1 class="no-margin">'+res.title+'</h1>',
+								'<div class="btn-group stick-top-right">',
+									'<a onclick="removeBook();" href="javascript:void(0);" class="btn btn-icon-toggle btn-default"><i class="md md-delete"></i></a>',
+									'<a onclick="prevBook();" href="javascript:void(0);" class="btn btn-icon-toggle btn-default"><i class="md md-arrow-back"></i></a>',
+									'<a onclick="nextBook();" href="javascript:void(0);" class="btn btn-icon-toggle btn-default"><i class="md md-arrow-forward"></i></a>',
+									'<a href="/detail_book/'+res.id+'" class="btn btn-icon-toggle btn-default"><i class="md md-forward"></i></a>',
+								'</div>',
+								'<span class="pull-right text-default-light">'+formatDate+'</span>',
+								'<strong>'+res.author+'</strong>',
+							'</div>',
+						'</div>',
+						'<hr/>',
+						'<article class="style-default-bright">',
+							'<div class="card card-tiles style-default-light" id="bookfile"></div>',
+						'</article>',
+						'<div class="col-md-12"> '+res.description+' </div>'
+					].join('\n');
+					$('#bookcontent').append(content);
+					PDFObject.embed(res.file, "#bookfile");
+				},
+				error: function(res) {
+					console.log(res);
+				}
+			});
+		}
+	}
+
+  function prevBook(){
+		 if(currentIndexBook - 1 >= 0){
+			 currentIndexBook--;
+			 bookID = listBook[currentIndexBook].split('-')[0];
+			 markID = listBook[currentIndexBook].split('-')[1];
+			 load_book_content(bookID,markID);
+			 $('.book-item').removeClass('active');
+			 $('.book-item')[currentIndexBook].className +=" active";
+		 }
+	}
+
+  function nextBook(){
+		 if(currentIndexBook + 1 < listBook.length){
+			 currentIndexBook++;
+			 bookID = listBook[currentIndexBook].split('-')[0];
+			 markID = listBook[currentIndexBook].split('-')[1];
+			 load_book_content(bookID,markID);
+			 $('.book-item').removeClass('active');
+			 $('.book-item')[currentIndexBook].className +=" active";
+		 }
+	}
+
+
+	function removeBook(){
+		 $.ajax({
+			 url:"/unmark_book/" + markID,
+			 method:"DELETE",
+			 success: function(res){
+				 var removeIndex = listBook.indexOf(bookID + '-' + markID);
+				 $('.book-item')[removeIndex].remove();
+				 listBook = $('.listBookID');
+				 listBook = $.map(listBook, function(item, index){
+					 return item.value;
+				 });
+				 console.log(listBook);
+				 if(listBook.length > 0){
+					 currentIndexBook = 0;
+					 $('.book-item').removeClass('active');
+					 $('.book-item')[0].className +=" active";
+					 bookID = $('#bookid').val(),
+					 markID = $('#markid').val(),
+					 load_book_content(bookID,markID);
+				 }
+			 },
+			 error: function(res){
+				 console.log(res);
+			 }
+		 });
+	}
+
+	$(document).ready(function(){
+		$('.book-item')[0].className +=" active";
+
+		load_book_content(bookID,markID);
+
+		$('#reading').on('click', function(){
+			$('.mark1').toggle();
+		});
+
+		$('#read').on('click', function(){
+			$('.mark2').toggle();
+		});
+
+		$('.book-item').on('click',function(){
+			bookID = $(this)[0].dataset.bookid;
+			markID = $(this)[0].dataset.markid;
+			currentIndexBook = listBook.indexOf(bookID);
+			load_book_content(bookID,markID);
+			$('.book-item').removeClass('active');
+			$(this).addClass('active');
+
+		});
+	});
+</script>

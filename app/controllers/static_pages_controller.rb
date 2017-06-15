@@ -1,0 +1,19 @@
+class StaticPagesController < ApplicationController
+  layout 'admin', only: [:home]
+  before_action :logged_in_user, only: [:home]
+  def home
+    if logged_in?
+      @micropost  = current_user.microposts.build
+      @feed_items = current_user.feed.paginate(page: params[:page])
+    end
+  end
+
+  def help
+  end
+
+  def about
+  end
+
+  def contact
+  end
+end

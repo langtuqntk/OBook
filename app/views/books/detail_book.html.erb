@@ -1,0 +1,265 @@
+<!--StaticPage-->
+<section>
+					<div class="section-header">
+						<ol class="breadcrumb">
+							<li><a href="/book_list">Books</a></li>
+							<li class="active"><%= @book.title %></li>
+						</ol>
+					</div>
+					<div class="section-body contain-lg">
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="card card-tiles style-default-light">
+
+									<!-- BEGIN BLOG POST HEADER -->
+									<div class="row style-primary">
+										<div class="col-sm-9">
+											<div class="card-body style-default-dark">
+												<div class="row">
+													<div class="col-md-2">
+														<%= image_tag(@book.image, class:"img-thumbnail", width:100, height:100) %>
+													</div>
+													<div class="col-md-10">
+														<h2><%= @book.title %></h2>
+														<div class="text-default-light">Author: <%= @book.author %> -
+															No. Page: <%= @book.numberpage %></div>
+													</div>
+													</div>
+												</div>
+
+
+										</div><!--end .col -->
+										<div class="col-sm-3">
+											<div class="card-body">
+												<div class="hidden-xs">
+													<h3 class="text-light"><strong><%= @book.created_at.day %> </strong> <%= @book.created_at.strftime("%B") %> </h3>
+													<a href="#"><%= @book.reviews %> reviews <i class="fa fa-eye"></i></a>
+													<div class="stick-top-right">
+														<a class="btn btn-icon-toggle" data-toggle="tooltip" data-placement="top" data-original-title="Contact me"><i class="fa fa-envelope"></i></a><br/>
+														<a class="btn btn-icon-toggle" data-toggle="tooltip" data-placement="top" data-original-title="Follow me"><i class="fa fa-twitter"></i></a><br/>
+														<a class="btn btn-icon-toggle" data-toggle="tooltip" data-placement="top" data-original-title="Personal info"><i class="fa fa-facebook"></i></a>
+													</div>
+												</div>
+												<div class="visible-xs">
+													<strong>15</strong> Jan <a href="#">2 comments <i class="fa fa-comment-o"></i></a>
+												</div>
+											</div>
+										</div><!--end .col -->
+									</div><!--end .row -->
+									<!-- END BLOG POST HEADER -->
+
+									<div class="row">
+
+										<!-- BEGIN BLOG POST TEXT -->
+										<div class="col-md-9">
+											<article class="style-default-bright">
+												<div id="bookfile"></div>
+											</article>
+										</div><!--end .col -->
+										<!-- END BLOG POST TEXT -->
+
+										<!-- BEGIN BLOG POST MENUBAR -->
+										<div class="col-md-3">
+											<div class="card-body">
+												<h3 class="text-light">Description</h3>
+												<p><%= @book.description.html_safe %></p>
+												<h3 class="text-light">Categories</h3>
+												<ul class="nav nav-pills nav-stacked nav-transparent">
+													<li><a href="#"><span class="badge pull-right">42</span>Design</a></li>
+													<li><a href="#"><span class="badge pull-right">32</span>Technology</a></li>
+													<li><a href="#"><span class="badge pull-right">12</span>Video</a></li>
+													<li><a href="#"><span class="badge pull-right">5</span>Music</a></li>
+													<li><a href="#"><span class="badge pull-right">28</span>Uncategorized</a></li>
+												</ul>
+											</div><!--end .card-body -->
+										</div><!--end .col -->
+										<!-- END BLOG POST MENUBAR -->
+
+									</div><!--end .row -->
+								</div><!--end .card -->
+							</div><!--end .col -->
+						</div><!--end .row -->
+
+						<!-- BEGIN COMMENTS -->
+						<div class="row">
+							<div class="col-md-9">
+								<h4><%= @book.reviews %> Reviews</h4>
+								<ul class="list-comments">
+									<% @reviews.each do |item| %>
+										<li>
+											<div class="card">
+												<div class="comment-avatar"><i class="glyphicon glyphicon-user opacity-50"></i></div>
+												<div class="card-body">
+													<h4 class="comment-title"><%= item.name %> <small><%= item.reviewed_at.strftime('%d/%m/%Y at %I:%M %p') %></small></h4>
+													<a class="btn btn-default-dark stick-top-right" href="#respond">
+														<% numComment = 0 %>
+														<% @comments.each do |c| %>
+															<% if c.review_book_id == item.id %>
+																<% numComment+= 1 %>
+															<% end %>
+														<% end %>
+														<span id="numComment<%= item.id %>"><%= numComment %></span> Comments
+													</a>
+													<h5><%= item.title %></h5>
+													<p><%= item.contenthtml.html_safe %></p>
+												</div>
+											</div><!--end .card -->
+											<ul id="wrapComment<%= item.id %>">
+												<% @comments.each do |c| %>
+													<% if c.review_book_id == item.id %>
+														<li>
+															<div class="card style-default-dark">
+																<div class="comment-avatar"><img class="img-circle" src="../../../assets/img/avatar1.jpg?1403934956" alt="" /></div>
+																<div class="card-body">
+																	<h4 class="comment-title"><%= c.name %> <small><%= item.reviewed_at.strftime('%d/%m/%Y at %I:%M %p') %></small></h4>
+																	<a class="btn btn-default-dark stick-top-right" href="#respond">Reply</a>
+																	<p><%= c.comment %></p>
+																</div>
+															</div><!--end .card -->
+														</li><!-- end sub-comment -->
+													<% end %>
+												<% end %>
+												<div class="row">
+													<div class="col-md-12">
+														<h4>Leave a comment:</h4>
+														<form class="form-horizontal" role="form">
+															<div class="form-group">
+																<div class="comment-avatar"><img class="img-circle" src="../../../assets/img/avatar1.jpg?1403934956" alt="" /></div>
+																<div class="col-sm-10">
+																	<textarea id="comment<%= item.id %>" style="font-size:9pt;resize:none;" placeholder="Write your comment here..." name="textarea13" id="textarea13" class="form-control" rows="5" cols="100%" placeholder=""></textarea><div class="form-control-line"></div>
+																</div>
+															</div>
+															<div class="form-footer col-md-offset-10">
+																<button data-username="<%= current_user.name %>" data-user="<%= current_user.id %>" data-review="<%= item.id %>" type="button" class="btn btn-primary btnComment"><i class="fa fa-paper-plane"></i> Send</button>
+															</div>
+														</form>
+													</div><!--end .col -->
+												</div><!--end .row -->
+											</ul>
+										</li><!-- end comment -->
+									<% end %>
+								</ul>
+							</div><!--end .col -->
+						</div><!--end .row -->
+						<!-- END COMMENTS -->
+
+						<!-- BEGIN LEAVE COMMENT -->
+						<div class="row">
+							<div class="col-md-9">
+								<h4>Write a review</h4>
+								<%= form_for @review_book, url:create_review_book_path, :html => {class:"form-horizontal", role:"form" } do |f| %>
+									<%= f.hidden_field :user_id, value: current_user.id %>
+									<%= f.hidden_field :book_id, value: @book.id %>
+									<%= f.hidden_field :book_id, value: @book.id %>
+									<input type="hidden" name="review[rating]" id="rating" value="" />
+									<div class="form-group">
+										<div class="col-md-2">
+											<label for="title" class="control-label">Title:</label>
+										</div>
+										<div class="col-md-4">
+											<%= f.text_field :title, id:"title", class:"form-control control-width-normal" %>
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="col-md-2">
+											<label for="summernote" class="control-label">Content:</label>
+										</div>
+										<div class="col-md-10">
+											<%= f.text_area :contenthtml, id:"summernote", class:"form-control control-6-rows", spellcheck:false %>
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="col-md-2">
+											<label for="rating" class="control-label">Rating:</label>
+										</div>
+										<div class="col-md-4">
+											<div class="doRating">
+												<a href="javascript:void(0)"><i class="fa fa-star-o"></i></a>
+												<a href="javascript:void(0)"><i class="fa fa-star-o"></i></a>
+												<a href="javascript:void(0)"><i class="fa fa-star-o"></i></a>
+												<a href="javascript:void(0)"><i class="fa fa-star-o"></i></a>
+												<a href="javascript:void(0)"><i class="fa fa-star-o"></i></a>
+											</div>
+										</div>
+									</div>
+									<div class="form-footer col-md-offset-2">
+										<button type="submit" class="btn btn-primary">Submit</button>
+									</div>
+								<% end %>
+							</div><!--end .col -->
+						</div><!--end .row -->
+						<!-- END LEAVE COMMENT -->
+
+					</div><!--end .section-body -->
+				</section>
+<script>
+	PDFObject.embed("<%= @book.file %>", "#bookfile");
+
+	$(document).ready(function() {
+        $('#summernote').summernote({
+					height: 300
+				});
+
+				$('.doRating>a>i').on('click',function(){
+					var listStar = $('.doRating>a>i');
+					for(var i = 0; i < listStar.length; i++){
+						listStar[i].setAttribute('class','fa fa-star-o');
+					}
+
+					for(var i = 0; i <= listStar.index($(this)); i++){
+						listStar[i].setAttribute('class','fa fa-star');
+					}
+					$('#rating').val(parseInt(listStar.index($(this))) + 1);
+				});
+
+
+				$('.btnComment').on('click',function(){
+					var currentUser = $(this)[0].dataset.user,
+							reviewID = $(this)[0].dataset.review;
+							name = $(this)[0].dataset.username;
+					var textareaComment = $('#comment' + reviewID).val();
+					var data = {
+						user_id: $(this)[0].dataset.user,
+						review_id: $(this)[0].dataset.review,
+						comment: textareaComment
+					};
+					$.ajax({
+						url:"/comment_list",
+						data: data,
+						method:"POST",
+						success: function(res){
+							console.log(res);
+							var created_at = new Date(res.created_at);
+							var d = created_at.getDate(), m = created_at.getMonth() + 1, y = created_at.getFullYear();
+							var formatDate = d + '/' + m  + '/' + y + ' ' + formatAMPM(created_at);
+							var numComment = parseInt($('#numComment' + reviewID).text());
+							console.log(formatDate);
+							var newComment = [
+								'<li>',
+									'<div class="card style-default-dark">',
+										'<div class="comment-avatar"><img class="img-circle" src="../../../assets/img/avatar1.jpg?1403934956" alt="" /></div>',
+										'<div class="card-body">',
+											'<h4 class="comment-title">'+name+'<small>'+formatDate+'</small></h4>',
+											'<a class="btn btn-default-dark stick-top-right" href="#respond">Reply</a>',
+											'<p>'+res.comment+'</p>',
+										'</div>',
+									'</div>',
+								'</li>',
+							].join('\n');
+							if($('#wrapComment' + reviewID + '>li:last')[0] === undefined){
+								$('#wrapComment' + reviewID + '>div.row').before(newComment);
+							}
+							else{
+								$('#wrapComment' + reviewID + '>li:last').append(newComment);
+							}
+							$('#comment' + reviewID).val('');
+							$('#numComment' + reviewID).text(numComment + 1);
+						},
+						error: function(res) {
+							console.log(res);
+						}
+					});
+				});
+
+  });
+</script>

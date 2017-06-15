@@ -1,0 +1,22 @@
+.gui-controls > li:hover{
+  cursor: pointer;
+}
+.isLike{
+  color:red;
+}
+.rating{
+  color: red;
+}
+.favorite{
+  color: #ff8080;
+}
+.favorite:hover{
+  color: red !important;
+}
+.doRating{
+  color: red;
+  font-size:15pt;
+}
+.list-email>.active{
+  background:#2196f3;
+}

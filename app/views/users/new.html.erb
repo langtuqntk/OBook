@@ -1,0 +1,70 @@
+<% provide(:title, "New user") %>
+<h1>New User</h1>
+<section>
+					<div class="section-body contain-lg">
+						<!-- BEGIN VERTICAL FORM FLOATING LABELS -->
+						<div class="row">
+							<div class="col-lg-offset-2 col-md-8">
+								<%= form_for(@user,  :html => {:class => 'form'}) do |f| %>
+									<div class="card">
+										<div class="card-head style-primary">
+											<header>Create an user</header>
+										</div>
+										<div class="card-body floating-label">
+											<div class="row">
+												<div class="col-sm-6">
+													<div class="form-group">
+                            <%= f.text_field :firstname, class:"form-control", id:"firstname"%>
+														<label for="firstname">Firstname</label>
+													</div>
+												</div>
+												<div class="col-sm-6">
+													<div class="form-group">
+														<%= f.text_field :lastname, class:"form-control", id:"lastname"%>
+														<label for="lastname">Lastname</label>
+													</div>
+												</div>
+											</div>
+                      <div class="row">
+												<div class="col-sm-6">
+													<div class="form-group">
+                            <%= f.text_field :address, class:"form-control", id:"address"%>
+														<label for="address">Address</label>
+													</div>
+												</div>
+												<div class="col-sm-6">
+                          <div class="form-group">
+    												<input type="text" name="user[numberphone]" class="form-control" data-inputmask="'mask': '(999) 999-9999'">
+    												<label>Tel.</label>
+    												<p class="help-block">US Telephone: (999) 999-9999</p>
+    											</div>
+												</div>
+											</div>
+											<div class="form-group">
+                        <%= f.email_field :username, class:"form-control", id:"username"%>
+												<label for="username">Username</label>
+											</div>
+											<div class="form-group">
+												<%= f.password_field :password, class:"form-control", id:"password"%>
+												<label for="password">Password</label>
+											</div>
+											<div class="checkbox checkbox-styled">
+												<label>
+													<input name="user[admin]" type="checkbox" value="">
+													<span>Admin</span>
+												</label>
+											</div>
+										</div><!--end .card-body -->
+										<div class="card-actionbar">
+											<div class="card-actionbar-row">
+												<button type="submit" class="btn btn-flat btn-primary ink-reaction">Create user</button>
+											</div>
+										</div>
+									</div><!--end .card -->
+								<% end %>
+							</div><!--end .col -->
+						</div><!--end .row -->
+						<!-- END VERTICAL FORM FLOATING LABELS -->
+
+					</div>
+				</section>

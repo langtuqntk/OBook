@@ -1,0 +1,49 @@
+<% provide(:title, 'Sign up') %>
+<div class="col s12 z-depth-4 card-panel">
+  <%= form_for(@user, url: signup_path,  :html => {:class => 'login-form'}) do |f| %>
+    <div class="row">
+      <div class="input-field col s12 center">
+
+        <%= image_tag "login-logo", :class => "circle responsive-img valign profile-image-login" %>
+        <p class="center login-form-text">Material Design Admin Template</p>
+      </div>
+    </div>
+    <div class="row margin">
+      <div class="input-field col s12">
+        <i class="mdi-social-person-outline prefix"></i>
+        <%= f.text_field :name, id: 'name' %>
+        <%= f.label :name, :for => "name", :class => "center-align" %>
+      </div>
+    </div>
+    <div class="row margin">
+      <div class="input-field col s12">
+        <i class="mdi-communication-email prefix"></i>
+        <%= f.email_field :email, id: 'email' %>
+        <%= f.label :email, :for => "email", :class => "center-align" %>
+      </div>
+    </div>
+    <div class="row margin">
+      <div class="input-field col s12">
+        <i class="mdi-action-lock-outline prefix"></i>
+        <%= f.password_field :password, id: 'password' %>
+        <%= f.label :password, :for => "password" %>
+      </div>
+    </div>
+    <div class="row margin">
+      <div class="input-field col s12">
+        <i class="mdi-action-lock-outline prefix"></i>
+        <%= f.password_field :password_confirmation, id: 'password_confirmation' %>
+        <%= f.label :password_confirmation, :for => "password_confirmation" %>
+      </div>
+    </div>
+    <div class="row">
+      <%= render 'shared/error_messages', object: f.object %>
+      <div class="input-field col s12">
+        <button type="submit" class="btn waves-effect waves-light col s12">Register Now</button>
+      </div>
+      <div class="input-field col s12">
+            <p class="margin center medium-small sign-up">Already have an account? <%= link_to "Login", login_path %></p>
+          </div>
+    </div>
+  <% end %>
+</div>

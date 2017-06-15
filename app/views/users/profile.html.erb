@@ -1,0 +1,305 @@
+<% provide(:title, "Edit user") %>
+<!--StaticPage-->
+<!-- BEGIN PROFILE HEADER -->
+				<section class="full-bleed">
+					<div class="section-body style-default-dark force-padding text-shadow">
+						<div class="img-backdrop" style="background-image: url('https://scontent.fdad2-1.fna.fbcdn.net/v/t1.0-9/18765912_1510821495635906_2191623437104135200_n.jpg?oh=330bdbe3999f2bdbc3c9f54f979b112a&oe=599EDEBC')"></div>
+						<div class="overlay overlay-shade-top stick-top-left height-3"></div>
+						<div class="row">
+							<div class="col-md-3 col-xs-5">
+								<img class="img-circle border-white border-xl img-responsive auto-width" src="<%= current_user.image %>" alt="" />
+								<h3>
+									<%= @user.name %><br/>
+									<small>
+										<% if @user.admin == true %>
+											Administrator
+										<% else %>
+											User
+										<% end %>
+									</small>
+								</h3>
+							</div><!--end .col -->
+							<div class="col-md-9 col-xs-7">
+								<div class="width-3 text-center pull-right">
+									<strong id="followers" class="text-xl"><%= @followers.size %></strong><br/>
+									<span class="text-light opacity-75">followers</span>
+								</div>
+								<div class="width-3 text-center pull-right">
+									<strong class="text-xl"><%= @following.size %></strong><br/>
+									<span class="text-light opacity-75">following</span>
+								</div>
+							</div><!--end .col -->
+						</div><!--end .row -->
+						<% if @user.id != current_user.id && logged_in? %>
+							<div class="overlay overlay-shade-bottom stick-bottom-left force-padding text-right">
+								<%= render 'follow_form'  %>
+							</div>
+						<% end %>
+					</div><!--end .section-body -->
+				</section>
+				<!-- END PROFILE HEADER  -->
+
+				<section>
+					<div class="section-body no-margin">
+						<div class="row">
+							<div class="col-md-8">
+								<h2>Timeline</h2>
+
+								<% if @user.id == current_user.id%>
+									<!-- BEGIN ENTER MESSAGE -->
+									<form class="form">
+										<div class="card no-margin">
+											<div class="card-body">
+												<div class="form-group floating-label">
+													<textarea name="status" id="status" class="form-control autosize" rows="1"></textarea>
+													<label for="status">What's on your mind?</label>
+												</div>
+											</div><!--end .card-body -->
+											<div class="card-actionbar">
+												<div class="card-actionbar-row">
+													<div class="pull-left">
+														<a class="btn btn-icon-toggle ink-reaction btn-default"><i class="md md-camera-alt"></i></a>
+														<a class="btn btn-icon-toggle ink-reaction btn-default"><i class="md md-location-on"></i></a>
+														<a class="btn btn-icon-toggle ink-reaction btn-default"><i class="md md-attach-file"></i></a>
+													</div>
+													<a href="javascript:void(0);" class="btn btn-flat btn-accent ink-reaction">Post</a>
+												</div><!--end .card-actionbar-row -->
+											</div><!--end .card-actionbar -->
+										</div><!--end .card -->
+									</form>
+									<!-- BEGIN ENTER MESSAGE -->
+								<% end %>
+
+								<!-- BEGIN MESSAGE ACTIVITY -->
+								<div class="tab-pane" id="activity">
+									<ul class="timeline collapse-lg timeline-hairline">
+										<% @activities.each do |item| %>
+											<% if @activities.index(item) % 2 == 0 %>
+												<li>
+											<% else %>
+												<li class="timeline-inverted">
+											<% end %>
+													<div class="timeline-circ circ-lg style-primary-gradient">
+														<% case item.activity_id %>
+														<% when 1 %>
+															<span class="fa fa-book"></span>
+														<% when 2 %>
+															<span class="fa fa-heart"></span>
+														<% when 3 %>
+															<span class="fa fa-eye"></span>
+														<% when 4 %>
+															<span class="glyphicon glyphicon-comment"></span>
+														<% when 5 %>
+															<span class="fa fa-user-plus"></span>
+														<% else %>
+															<span class="md md-event"></span>
+														<% end %>
+													</div>
+													<div class="timeline-entry">
+														<% if item.activity_id == 6 %>
+															<div class="card style-primary">
+														<% else %>
+															<div class="card style-default-light">
+														<% end %>
+															<div class="card-body small-padding">
+																<% if item.activity_id == 6 %>
+																	<img class="img-circle img-responsive pull-left width-1" src="<%= item.user_image_status %>" alt="" />
+																<% else %>
+																	<img class="img-circle img-responsive pull-left width-1" src="<%= item.image %>" alt="" />
+																<% end %>
+																<span class="text-medium">
+																	<% case item.activity_id %>
+																	<% when 1 %>
+																		<%= link_to item.name , profile_path, class:"text-primary" %> read <%= link_to item.title ,detail_book_path(item.book_affected), class:"text-primary" %> book
+																	<% when 2 %>
+																		<%= link_to item.name , profile_path, class:"text-primary" %> added <%= link_to item.title ,detail_book_path(item.book_affected), class:"text-primary" %> book to favorites
+																	<% when 3 %>
+																		<%= link_to item.name , profile_path, class:"text-primary" %> reviewed <%= link_to item.title ,detail_book_path(item.book_affected), class:"text-primary" %> book
+																	<% when 4 %>
+																		<%= link_to item.name , profile_path, class:"text-primary" %> commented on <%= link_to item.user_name_affected , profile_path, class:"text-primary" %>'s review in <%= link_to item.title ,detail_book_path(item.user_affected), class:"text-primary" %> book
+																	<% when 5 %>
+																		<%= link_to item.name , profile_path, class:"text-primary" %> followed <%= link_to item.user_name_affected , profile_path, class:"text-primary" %>
+																	<% else %>
+																		<%= link_to item.user_name_status , profile_path, class:"text-primary-dark" %> posted a new status at <span class="text-primary-dark"><%= item.location %></span>
+																	<% end %>
+																</span><br/>
+																<span class="opacity-50">
+																	<%= item.created_at.strftime('%d/%m/%Y at %I:%M %p') %>
+																</span>
+															</div><!--end .card-body -->
+															<% if item.activity_id == 6 %>
+																<div class="card-body">
+																	<p><em><%= item.content %></em></p>
+																	<img class="img-responsive" src="<%= item.status_image %>" alt="" />
+																</div><!--end .card-body -->
+															<% end %>
+														</div><!--end .card -->
+													</div><!--end .timeline-entry -->
+												</li>
+										<% end %>
+									</ul>
+								</div><!--end #activity -->
+							</div><!--end .col -->
+							<!-- END MESSAGE ACTIVITY -->
+
+							<!-- BEGIN PROFILE MENUBAR -->
+							<div class="col-lg-offset-1 col-lg-3 col-md-4">
+								<div class="card card-underline style-default-dark">
+									<div class="card-head">
+										<header class="opacity-75"><small>Following</small></header>
+										<div class="tools">
+											<form class="navbar-search" role="search">
+												<div class="form-group">
+													<input type="text" class="form-control" name="friendSearch" placeholder="Enter your keyword">
+												</div>
+												<button type="submit" class="btn btn-icon-toggle ink-reaction"><i class="fa fa-search"></i></button>
+											</form>
+										</div><!--end .tools -->
+									</div><!--end .card-head -->
+									<div class="card-body no-padding">
+										<ul class="list" style="height:350px;overflow-x:auto">
+											<% @following.each do |item| %>
+											<li class="tile">
+												<%= link_to profile_path(item.id), class:"tile-content ink-reaction" do %>
+													<div class="tile-icon">
+														<img src="<%= item.image %>" alt="" />
+													</div>
+													<div class="tile-text"><%= item.name %>
+														<small>
+															<% if item.admin == true %>
+																Administrator
+															<% else %>
+																User
+															<% end %>
+													 </small>
+												  </div>
+												<% end %>
+											</li>
+											<% end %>
+										</ul>
+									</div><!--end .card-body -->
+								</div><!--end .card -->
+
+								<div class="card card-underline style-default-dark">
+									<div class="card-head">
+										<header class="opacity-75"><small>Followers</small></header>
+										<div class="tools">
+											<form class="navbar-search" role="search">
+												<div class="form-group">
+													<input type="text" class="form-control" name="friendSearch" placeholder="Enter your keyword">
+												</div>
+												<button type="submit" class="btn btn-icon-toggle ink-reaction"><i class="fa fa-search"></i></button>
+											</form>
+										</div><!--end .tools -->
+									</div><!--end .card-head -->
+									<div class="card-body no-padding">
+										<ul class="list" style="height:350px;overflow-x:auto">
+											<% @followers.each do |item| %>
+											<li class="tile">
+												<%= link_to profile_path(item.id), class:"tile-content ink-reaction" do %>
+													<div class="tile-icon">
+														<img src="<%= item.image %>" alt="" />
+													</div>
+													<div class="tile-text"><%= item.name %>
+														<small>
+															<% if item.admin == true %>
+																Administrator
+															<% else %>
+																User
+															<% end %>
+													  </small>
+													</div>
+												<% end %>
+											</li>
+											<% end %>
+										</ul>
+									</div><!--end .card-body -->
+								</div><!--end .card -->
+
+                <% if @user.id != current_user.id && logged_in? %>
+                  <div class="card card-underline style-default-dark">
+                    <div class="card-head">
+                      <header class="opacity-75"><small>Favorite Books</small></header>
+                      <div class="tools">
+                        <form class="navbar-search" role="search">
+                          <div class="form-group">
+                            <input type="text" class="form-control" name="friendSearch" placeholder="Enter your keyword">
+                          </div>
+                          <button type="submit" class="btn btn-icon-toggle ink-reaction"><i class="fa fa-search"></i></button>
+                        </form>
+                      </div><!--end .tools -->
+                    </div><!--end .card-head -->
+                    <div class="card-body no-padding">
+                      <ul class="list" style="height:350px;overflow-x:auto">
+                        <% @favorite_books.each do |item| %>
+                          <li class="tile">
+                            <%= link_to detail_book_path(item.id), class:"tile-content ink-reaction" do %>
+                              <div class="tile-icon">
+                                <img src="<%= item.image %>" alt="" />
+                              </div>
+                              <div class="tile-text"><%= item.title %>
+                                <small><%= item.author %></small>
+                              </div>
+                            <% end %>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div><!--end .card-body -->
+                  </div><!--end .card -->
+    						<% end %>
+
+								<div class="card card-underline style-default-dark">
+									<div class="card-head">
+										<header class="opacity-75"><small>Personal info</small></header>
+										<div class="tools">
+											<a class="btn btn-icon-toggle ink-reaction"><i class="md md-edit"></i></a>
+										</div><!--end .tools -->
+									</div><!--end .card-head -->
+									<div class="card-body no-padding">
+										<ul class="list">
+											<li class="tile">
+												<a class="tile-content ink-reaction">
+													<div class="tile-icon">
+														<i class="md md-location-on"></i>
+													</div>
+													<div class="tile-text">
+														<%= current_user.address %>
+														<small>Address</small>
+													</div>
+												</a>
+											</li>
+											<li class="tile">
+												<a class="tile-content ink-reaction">
+													<div class="tile-icon">
+														<i class="fa fa-phone"></i>
+													</div>
+													<div class="tile-text">
+														<%= current_user.numberphone %>
+														<small>Mobile</small>
+													</div>
+												</a>
+											</li>
+											<li class="tile">
+												<a class="tile-content ink-reaction">
+													<div class="tile-icon">
+														<i class="fa fa-envelope"></i>
+													</div>
+													<div style="font-size:10pt;" class="tile-text">
+														<%= current_user.email %>
+														<small>Email</small>
+													</div>
+												</a>
+											</li>
+										</ul>
+									</div><!--end .card-body -->
+								</div><!--end .card -->
+							</div><!--end .col -->
+							<!-- END PROFILE MENUBAR -->
+
+						</div><!--end .row -->
+					</div><!--end .section-body -->
+				</section>
+
+<script>
+
+</script>

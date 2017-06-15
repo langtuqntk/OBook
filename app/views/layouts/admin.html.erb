@@ -1,0 +1,50 @@
+<!--StaticPage-->
+<html lang="en">
+	<head>
+		<title><%= full_title(yield(:title)) %></title>
+
+    <%= csrf_meta_tags %>
+    <%= stylesheet_link_tag    'application', media: 'all',
+                                              'data-turbolinks-track': 'reload' %>
+		<%= javascript_include_tag 'libs', 'data-turbolinks-track': 'reload' %>
+    <%= render 'layouts/shim' %>
+	</head>
+	<body class="menubar-hoverable header-fixed ">
+		<!-- BEGIN HEADER-->
+		<%= render 'layouts/header' %>
+		<!-- END HEADER-->
+
+		<!-- BEGIN BASE-->
+		<div id="base">
+
+			<!-- BEGIN OFFCANVAS LEFT -->
+			<div class="offcanvas">
+			</div><!--end .offcanvas-->
+			<!-- END OFFCANVAS LEFT -->
+
+			<!-- BEGIN CONTENT-->
+			<div id="content">
+				<section class="style-default-bright">
+					<div class="section-body">
+						<%= yield %>
+				</section>
+			</div><!--end #content-->
+			<!-- END CONTENT -->
+
+			<!-- BEGIN MENUBAR-->
+			<%= render 'layouts/menubar_admin' %>
+			<!-- END MENUBAR -->
+
+			<!-- BEGIN OFFCANVAS RIGHT -->
+			<%= render 'layouts/rightpanel' %>
+			<!-- END OFFCANVAS RIGHT -->
+
+		</div><!--end #base-->
+		<!-- END BASE -->
+
+		<!--JAVASCRIPT-->
+		<%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+		<!--JAVASCRIPT-->
+
+	</body>
+</html>

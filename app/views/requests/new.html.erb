@@ -1,0 +1,42 @@
+<section class="has-actions style-default-bright">
+		<%= form_for(@request, class:"form") do |f| %>
+					<%= f.hidden_field :status, value:0 %>
+					<%= f.hidden_field :user_id, value: current_user.id %>
+					<div class="section-body">
+						<div class="row">
+							<!-- BEGIN MAIL COMPOSE -->
+							<div class="col-sm-8 col-md-9 col-lg-10">
+								<h3>Request</h3>
+									<div class="form-group floating-label">
+										<%= f.text_field :title, class:"form-control", id:"title" %>
+										<label for="title">Title</label>
+									</div><!--end .form-group -->
+									<div class="form-group">
+										<%= f.text_area :contenthtml, id:"simple-summernote", class:"form-control control-6-rows", spellcheck:false %>
+									</div><!--end .form-group -->
+							</div><!--end .col -->
+							<!-- END MAIL COMPOSE -->
+
+						</div><!--end .row -->
+					</div><!--end .section-body -->
+					<!-- END INBOX -->
+
+					<!-- BEGIN SECTION ACTION -->
+					<div class="section-action style-primary">
+						<div class="section-action-row">
+							<a class="btn ink-reaction btn-icon-toggle" href="/request_list"><i class="fa fa-chevron-left"></i></a>
+						</div>
+						<div class="section-floating-action-row">
+							<button type="submit" class="btn ink-reaction btn-floating-action btn-lg btn-accent"><i class="md md-send"></i></button>
+						</div>
+					</div>
+					<!-- END SECTION ACTION -->
+
+	<% end %>
+</section>
+
+<script>
+	$(document).ready(function(){
+		$('#simple-summernote').summernote({height:265,width:1175});
+	});
+</script>

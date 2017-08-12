@@ -11,6 +11,9 @@
 // about supported directives.
 //
 
+//= require jquery
+//= require jquery_ujs
+//= require pdfobject.min
 //= require turbolinks
 //= require_tree .
 

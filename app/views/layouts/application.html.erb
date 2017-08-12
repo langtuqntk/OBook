@@ -5,7 +5,7 @@
     <%= csrf_meta_tags %>
     <%= stylesheet_link_tag    'application', media: 'all',
                                               'data-turbolinks-track': 'reload' %>
-		<%= javascript_include_tag 'libs', 'data-turbolinks-track': 'reload' %>
+		<%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
     <%= render 'layouts/shim' %>
 	</head>
 	<body class="menubar-hoverable header-fixed  ">
@@ -46,9 +46,7 @@
 		</div><!--end #base-->
 		<!-- END BASE -->
 
-		<!--JAVASCRIPT-->
-		<%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
-		<!--JAVASCRIPT-->
+
 
 	</body>
 </html>

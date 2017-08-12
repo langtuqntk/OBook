@@ -130,7 +130,7 @@
 																</div>
 															</div>
 															<div class="form-footer col-md-offset-10">
-																<button data-username="<%= current_user.name %>" data-user="<%= current_user.id %>" data-review="<%= item.id %>" type="button" class="btn btn-primary btnComment"><i class="fa fa-paper-plane"></i> Send</button>
+																<button data-username="<%= current_user.name %>" data-user="<%= current_user.id %>" data-review="<%= item.id %>" data-bookid="<%= item.book_id %>" data-userid="<%= item.user_id %>" type="button" class="btn btn-primary btnComment"><i class="fa fa-paper-plane"></i> Send</button>
 															</div>
 														</form>
 													</div><!--end .col -->
@@ -221,7 +221,9 @@
 					var data = {
 						user_id: $(this)[0].dataset.user,
 						review_id: $(this)[0].dataset.review,
-						comment: textareaComment
+						comment: textareaComment,
+						book_affected: $(this)[0].dataset.bookid,
+						user_affected: $(this)[0].dataset.userid
 					};
 					$.ajax({
 						url:"/comment_list",

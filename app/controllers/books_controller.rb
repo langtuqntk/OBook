@@ -89,7 +89,7 @@ class BooksController < ApplicationController
               .order('books.id ASC')
               .find(params[:id])
     @reviews = ReviewBook
-                .select('review_books.id, review_books.title,review_books.contenthtml,
+                .select('review_books.id, review_books.title,review_books.contenthtml, review_books.user_id, review_books.book_id,
                           review_books.created_at as "reviewed_at",users.name')
                 .joins('INNER JOIN users ON review_books.user_id = users.id')
                 .where(:book_id => @book.id)
@@ -98,18 +98,23 @@ class BooksController < ApplicationController
     @comments = Comment
                   .select('comments.*,users.name')
                   .joins(:user)
-                  .order('comments.created_at DESC')
     return @book, @reviews, @comments, @review_book
   end
 
   def create_review_book
     url = "/detail_book/#{params[:review_book][:book_id]}"
     @review = ReviewBook.new(review_params)
+    
     @rating = RatingBook.new
     @rating.rating = params[:review][:rating]
     @rating.user_id = params[:review_book][:user_id]
     @rating.book_id = params[:review_book][:book_id]
-    if @review.save && @rating.save
+    
+    @activity = UserActivity.new
+    @activity.user_id = params[:review_book][:user_id]
+    @activity.book_affected = params[:review_book][:book_id]
+    @activity.activity_id = 3
+    if @review.save && @rating.save && @activity.save
       redirect_to url
     else
       redirect_to root_url

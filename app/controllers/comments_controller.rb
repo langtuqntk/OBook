@@ -63,7 +63,11 @@ class CommentsController < ApplicationController
 
   def load_comments
     @comments = Comment.new(user_id: params[:user_id],review_book_id: params[:review_id], comment: params[:comment])
-
+    
+    @activity = UserActivity.new
+    @activity.user_id = params[:user_id]
+    @activity.activity_id = 4
+    @activity.save
     respond_to do |format|
       if @comments.save
         format.json { render json: @comments, status: :created, location: @comments }

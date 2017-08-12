@@ -11,11 +11,13 @@
 // about supported directives.
 //
 
-//= require jquery
-//= require jquery_ujs
-//= require pdfobject.min
 //= require turbolinks
 //= require_tree .
+//= stub pdfobject.min
+//= stub jquery
+//= stub jquery_ujs
+//= stub materialize.min
+//= stub plugins
 
 function formatAMPM(date) {
   var hours = date.getHours();

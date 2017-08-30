@@ -15,6 +15,7 @@
 //= require_tree .
 
 
+
 function formatAMPM(date) {
   var hours = date.getHours();
   var minutes = date.getMinutes();

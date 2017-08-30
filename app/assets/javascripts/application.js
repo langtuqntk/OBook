@@ -11,9 +11,13 @@
 // about supported directives.
 //
 
-//= require bootstrap
 //= require turbolinks
 //= require_tree .
+//= stub pdfobject.min
+//= stub jquery
+//= stub jquery_ujs
+//= stub materialize.min
+//= stub plugins
 
 
 function formatAMPM(date) {
